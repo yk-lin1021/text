@@ -13,16 +13,16 @@ st.sidebar.info(markdown)
 logo = "https://i.imgur.com/UbOXYAU.png"
 st.sidebar.image(logo)
 
-st.title("Marker Cluster")
+st.title("石門水庫集水區雨量資料")
 
 with st.expander("See source code"):
     with st.echo():
 
-        m = leafmap.Map(center=[40, -100], zoom=4)
+        m = leafmap.Map(center=[40, -100], zoom=6)
         cities = "https://github.com/yk-lin1021/113-1gis/raw/refs/heads/main/rain.csv"
         regions = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/1130.geojson"
 
-        m.add_geojson(regions, layer_name="US Regions")
+        m.add_geojson(regions, layer_name="石門水庫集水區")
         m.add_points_from_xy(
             cities,
             x="lon",
