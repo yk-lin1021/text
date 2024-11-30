@@ -35,6 +35,5 @@ with st.expander("See source code"):
 m.to_streamlit(height=700)
 
 csv_file = st.file_uploader("https://github.com/yk-lin1021/113-1gis/raw/refs/heads/main/rain.csv", type=["csv"])
-if csv_file is not None:
-    df = pd.read_csv(csv_file)
-    st.dataframe(df)
+df = pd.read_csv(csv_file)
+st.dataframe(df)
