@@ -37,15 +37,12 @@ with st.expander("See source code"):
 
 m.to_streamlit(height=700)
 
-# 下載 CSV 並顯示資料
+st.write(
+    f"""雨量測站資料"""
+)
+
 csv_url = "https://github.com/yk-lin1021/113-1gis/raw/refs/heads/main/rain.csv"
-
-# 使用 requests 下載 CSV
 response = requests.get(csv_url)
-csv_data = response.text  # 獲取 CSV 文件的文本內容
-
-# 使用 StringIO 轉換為 pandas DataFrame
+csv_data = response.text  
 df = pd.read_csv(StringIO(csv_data))
-
-# 顯示 DataFrame
 st.dataframe(df)
