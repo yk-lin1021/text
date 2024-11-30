@@ -35,6 +35,7 @@ with st.expander("See source code"):
             add_legend=True,
         )
 
+m.add_basemap("opentopomap")
 m.to_streamlit(height=700)
 
 st.markdown(
