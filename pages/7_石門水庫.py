@@ -27,8 +27,7 @@ with st.expander("See source code"):
             cities,
             x="lon",
             y="lat",
-            color_column="region",
-            icon_names=["gear", "map", "leaf", "globe"],
+            icon_names=["2023", "2022", "2021", "單位"],
             spin=True,
             add_legend=True,
         )
