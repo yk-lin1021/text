@@ -34,6 +34,7 @@ with st.expander("See source code"):
 
 m.to_streamlit(height=700)
 
-csv_file = st.file_uploader("https://github.com/yk-lin1021/113-1gis/raw/refs/heads/main/rain.csv", type=["csv"])
-df = pd.read_csv(csv_file)
+
+csv_url = "https://github.com/yk-lin1021/113-1gis/raw/refs/heads/main/rain.csv"
+df = pd.read_csv(csv_url)
 st.dataframe(df)
