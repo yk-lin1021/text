@@ -16,8 +16,8 @@ toilet_types = ['全選'] + list(data['公廁類別'].unique())
 selected_type = st.selectbox("選擇公廁類別", options=toilet_types, index=0)
 
 # Checkbox options for additional information
-show_accessible = st.checkbox("顯示無障礙廁座數", value=True)
-show_parent_child = st.checkbox("顯示親子廁座數", value=True)
+show_accessible = st.checkbox("無障礙廁座", value=True)
+show_parent_child = st.checkbox("親子廁座", value=True)
 
 # Filter data based on selection
 if selected_type == '全選':
