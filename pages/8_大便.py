@@ -56,3 +56,4 @@ for _, row in filtered_data.iterrows():
     m.add_marker(location=(row['緯度'], row['經度']), tooltip=popup_info, popup_max_width=300)
 
 # Display the map
+m.to_streamlit(height=700)
