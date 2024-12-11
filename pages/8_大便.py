@@ -9,7 +9,7 @@ data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs
 st.title("公廁互動地圖")
 
 # Sidebar options for filtering
-toilet_types = data['公廁類別'].unique()
+toilet_types = ['全選'] + list(data['公廁類別'].unique())
 selected_type = st.sidebar.selectbox("選擇公廁類別", options=toilet_types, index=0)
 
 # Checkbox options for additional information
@@ -17,7 +17,16 @@ show_accessible = st.sidebar.checkbox("顯示無障礙廁座數", value=True)
 show_parent_child = st.sidebar.checkbox("顯示親子廁座數", value=True)
 
 # Filter data based on selection
-filtered_data = data[data['公廁類別'] == selected_type]
+if selected_type == '全選':
+    filtered_data = data.copy()
+else:
+    filtered_data = data[data['公廁類別'] == selected_type]
+
+# Further filter data based on checkboxes
+if show_accessible:
+    filtered_data = filtered_data[filtered_data['無障礙廁座數'] > 0]
+if show_parent_child:
+    filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
