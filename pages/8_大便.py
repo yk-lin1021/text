@@ -1,6 +1,7 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
+import json
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
@@ -31,21 +32,48 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
+# Initialize user location variables
+user_lat = None
+user_lon = None
+
 # Get user location manually
-st.write("\u26A0 如果需要定位，請允許瀏覽器獲取您的位置信息。")
-user_location = st.text_input("輸入您的位置 (格式: 緯度,經度)")
+st.write("\u26A0 若要顯示您的位置，請點擊下方按鈕允許存取您的定位資訊。")
+if st.button("取得我的位置"):
+    location_script = """
+    <script>
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
+            const el = document.getElementById('location-data');
+            el.innerText = JSON.stringify(coords);
+        },
+        (error) => {
+            const el = document.getElementById('location-data');
+            el.innerText = JSON.stringify({"error": error.message});
+        }
+    );
+    </script>
+    <div id="location-data" style="display: none;"></div>
+    """
+    user_location = st.components.v1.html(location_script, height=0)
+
+    if user_location:
+        try:
+            coords = json.loads(user_location)
+            if "lat" in coords and "lon" in coords:
+                user_lat = coords["lat"]
+                user_lon = coords["lon"]
+            elif "error" in coords:
+                st.error(f"定位失敗: {coords['error']}")
+        except json.JSONDecodeError:
+            st.error("定位資料解析失敗，請重試。")
 
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
 # Add user location marker if available
-if user_location:
-    try:
-        lat, lon = map(float, user_location.split(","))
-        m.add_marker(location=(lat, lon),
-                     tooltip="您的位置", icon="blue")
-    except ValueError:
-        st.warning("輸入的座標格式無效，請輸入有效的緯度和經度，例如: 25.033,121.565")
+if user_lat and user_lon:
+    m.add_marker(location=(user_lat, user_lon), tooltip="您的位置", icon="blue")
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
