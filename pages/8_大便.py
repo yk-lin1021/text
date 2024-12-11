@@ -1,7 +1,6 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
-import json
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
@@ -32,28 +31,8 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
-# Initialize user location variables
-if "user_location" not in st.session_state:
-    st.session_state.user_location = None
-
-# Get user location using JavaScript
-st.write("\u26A0 若要顯示您的位置，請允許存取您的定位資訊。")
-user_location = st_js_eval(js_expressions="navigator.geolocation.getCurrentPosition((position) => ({lat: position.coords.latitude, lon: position.coords.longitude}), (error) => ({error: error.message}))")
-
-if user_location:
-    if "lat" in user_location and "lon" in user_location:
-        st.session_state.user_location = (user_location["lat"], user_location["lon"])
-        st.success("定位成功！您的位置已顯示在地圖上。")
-    elif "error" in user_location:
-        st.error(f"定位失敗: {user_location['error']}")
-
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
-
-# Add user location marker if available
-if st.session_state.user_location:
-    user_lat, user_lon = st.session_state.user_location
-    m.add_marker(location=(user_lat, user_lon), tooltip="您的位置", icon="blue")
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
