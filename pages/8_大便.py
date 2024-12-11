@@ -52,7 +52,7 @@ for _, row in filtered_data.iterrows():
     if show_parent_child:
         popup_info += f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
 
-    m.add_marker(location=(row['緯度'], row['經度']), popup=popup_info, popup_max_width=600)
+    m.add_marker(location=(row['緯度'], row['經度']), popup=popup_info, popup_max_width=300)
 
 # Display the map
 m.to_streamlit(height=700)
