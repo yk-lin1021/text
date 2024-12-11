@@ -16,8 +16,8 @@ toilet_types = ['全選'] + list(data['公廁類別'].unique())
 selected_type = st.selectbox("選擇公廁類別", options=toilet_types, index=0)
 
 # Checkbox options for additional information
-show_accessible = st.checkbox("無障礙廁座", value=True)
-show_parent_child = st.checkbox("親子廁座", value=True)
+show_accessible = st.checkbox("顯示無障礙廁座數", value=True)
+show_parent_child = st.checkbox("顯示親子廁座數", value=True)
 
 # Filter data based on selection
 if selected_type == '全選':
@@ -31,8 +31,34 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
+# Get user location using JavaScript
+def get_user_location():
+    location_script = """
+    <script>
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
+            Streamlit.setComponentValue(JSON.stringify(coords));
+        }
+    );
+    </script>
+    """
+    return st.components.v1.html(location_script, height=0)
+
+user_location = get_user_location()
+
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
+
+# Add user location marker if available
+if user_location:
+    import json
+    try:
+        coords = json.loads(user_location)
+        m.add_marker(location=(coords["lat"], coords["lon"]),
+                     tooltip="您的位置", icon="blue")
+    except json.JSONDecodeError:
+        pass
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
@@ -53,19 +79,6 @@ for _, row in filtered_data.iterrows():
         popup_info += f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
 
     m.add_marker(location=(row['緯度'], row['經度']), tooltip=popup_info, popup_max_width=300)
-
-# Get user location
-def get_user_location():
-    st.write("請允許瀏覽器取得您的位置以顯示在地圖上。")
-    user_lat = st.number_input("輸入您的緯度：", value=25.033)
-    user_lon = st.number_input("輸入您的經度：", value=121.565)
-    return user_lat, user_lon
-
-user_lat, user_lon = get_user_location()
-
-# Add user location to the map
-if user_lat and user_lon:
-    m.add_marker(location=(user_lat, user_lon), tooltip="您的位置", popup="<b>這是您的位置</b>", icon_color="blue")
 
 # Display the map
 m.to_streamlit(height=700)
