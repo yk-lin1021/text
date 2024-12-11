@@ -31,19 +31,24 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
-# Get user location using JavaScript
+# Get user location manually
 def get_user_location():
-    location_script = """
-    <script>
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
-            Streamlit.setComponentValue(JSON.stringify(coords));
-        }
-    );
-    </script>
-    """
-    return st.components.v1.html(location_script, height=0)
+    st.write("\u26A0 請點擊下方按鈕以允許取得您的定位資訊。")
+    if st.button("取得我的位置"):
+        location_script = """
+        <script>
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
+                document.getElementById('location-data').innerText = JSON.stringify(coords);
+            }
+        );
+        </script>
+        <div id="location-data"></div>
+        """
+        user_loc = st.components.v1.html(location_script, height=0)
+        return user_loc
+    return None
 
 user_location = get_user_location()
 
@@ -52,13 +57,12 @@ m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
 # Add user location marker if available
 if user_location:
-    import json
     try:
         coords = json.loads(user_location)
         m.add_marker(location=(coords["lat"], coords["lon"]),
                      tooltip="您的位置", icon="blue")
-    except json.JSONDecodeError:
-        pass
+    except (json.JSONDecodeError, TypeError):
+        st.warning("無法獲取定位資訊，請檢查瀏覽器設置並重試。")
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
