@@ -32,25 +32,8 @@ if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
 # Get user location manually
-def get_user_location():
-    st.write("\u26A0 請點擊下方按鈕以允許取得您的定位資訊。")
-    if st.button("取得我的位置"):
-        location_script = """
-        <script>
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
-                document.getElementById('location-data').innerText = JSON.stringify(coords);
-            }
-        );
-        </script>
-        <div id="location-data"></div>
-        """
-        user_loc = st.components.v1.html(location_script, height=0)
-        return user_loc
-    return None
-
-user_location = get_user_location()
+st.write("\u26A0 如果需要定位，請允許瀏覽器獲取您的位置信息。")
+user_location = st.text_input("輸入您的位置 (格式: 緯度,經度)")
 
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
@@ -58,11 +41,11 @@ m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 # Add user location marker if available
 if user_location:
     try:
-        coords = json.loads(user_location)
-        m.add_marker(location=(coords["lat"], coords["lon"]),
+        lat, lon = map(float, user_location.split(","))
+        m.add_marker(location=(lat, lon),
                      tooltip="您的位置", icon="blue")
-    except (json.JSONDecodeError, TypeError):
-        st.warning("無法獲取定位資訊，請檢查瀏覽器設置並重試。")
+    except ValueError:
+        st.warning("輸入的座標格式無效，請輸入有效的緯度和經度，例如: 25.033,121.565")
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
