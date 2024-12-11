@@ -54,5 +54,18 @@ for _, row in filtered_data.iterrows():
 
     m.add_marker(location=(row['緯度'], row['經度']), tooltip=popup_info, popup_max_width=300)
 
+# Get user location
+def get_user_location():
+    st.write("請允許瀏覽器取得您的位置以顯示在地圖上。")
+    user_lat = st.number_input("輸入您的緯度：", value=25.033)
+    user_lon = st.number_input("輸入您的經度：", value=121.565)
+    return user_lat, user_lon
+
+user_lat, user_lon = get_user_location()
+
+# Add user location to the map
+if user_lat and user_lon:
+    m.add_marker(location=(user_lat, user_lon), tooltip="您的位置", popup="<b>這是您的位置</b>", icon_color="blue")
+
 # Display the map
 m.to_streamlit(height=700)
