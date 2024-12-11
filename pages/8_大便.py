@@ -36,39 +36,16 @@ if show_parent_child:
 if "user_location" not in st.session_state:
     st.session_state.user_location = None
 
-# Get user location manually
-st.write("\u26A0 若要顯示您的位置，請點擊下方按鈕允許存取您的定位資訊。")
-if st.button("取得我的位置"):
-    location_script = """
-    <script>
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const coords = {"lat": position.coords.latitude, "lon": position.coords.longitude};
-            const el = document.getElementById('location-data');
-            el.innerText = JSON.stringify(coords);
-        },
-        (error) => {
-            const el = document.getElementById('location-data');
-            el.innerText = JSON.stringify({"error": error.message});
-        }
-    );
-    </script>
-    <div id="location-data" style="display: none;"></div>
-    """
-    user_location_html = st.components.v1.html(location_script, height=0)
+# Get user location using JavaScript
+st.write("\u26A0 若要顯示您的位置，請允許存取您的定位資訊。")
+user_location = st_js_eval(js_expressions="navigator.geolocation.getCurrentPosition((position) => ({lat: position.coords.latitude, lon: position.coords.longitude}), (error) => ({error: error.message}))")
 
-    if user_location_html:
-        try:
-            coords_text = st.text_area("請複製以下定位資訊並按下 Enter", "")
-            if coords_text:
-                coords = json.loads(coords_text)
-                if "lat" in coords and "lon" in coords:
-                    st.session_state.user_location = (coords["lat"], coords["lon"])
-                    st.success("定位成功！")
-                elif "error" in coords:
-                    st.error(f"定位失敗: {coords['error']}")
-        except json.JSONDecodeError:
-            st.error("定位資料解析失敗，請重試。")
+if user_location:
+    if "lat" in user_location and "lon" in user_location:
+        st.session_state.user_location = (user_location["lat"], user_location["lon"])
+        st.success("定位成功！您的位置已顯示在地圖上。")
+    elif "error" in user_location:
+        st.error(f"定位失敗: {user_location['error']}")
 
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
