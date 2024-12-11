@@ -33,8 +33,8 @@ if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
 # Initialize user location variables
-user_lat = None
-user_lon = None
+if "user_location" not in st.session_state:
+    st.session_state.user_location = None
 
 # Get user location manually
 st.write("\u26A0 若要顯示您的位置，請點擊下方按鈕允許存取您的定位資訊。")
@@ -55,16 +55,18 @@ if st.button("取得我的位置"):
     </script>
     <div id="location-data" style="display: none;"></div>
     """
-    user_location = st.components.v1.html(location_script, height=0)
+    user_location_html = st.components.v1.html(location_script, height=0)
 
-    if user_location:
+    if user_location_html:
         try:
-            coords = json.loads(user_location)
-            if "lat" in coords and "lon" in coords:
-                user_lat = coords["lat"]
-                user_lon = coords["lon"]
-            elif "error" in coords:
-                st.error(f"定位失敗: {coords['error']}")
+            coords_text = st.text_area("請複製以下定位資訊並按下 Enter", "")
+            if coords_text:
+                coords = json.loads(coords_text)
+                if "lat" in coords and "lon" in coords:
+                    st.session_state.user_location = (coords["lat"], coords["lon"])
+                    st.success("定位成功！")
+                elif "error" in coords:
+                    st.error(f"定位失敗: {coords['error']}")
         except json.JSONDecodeError:
             st.error("定位資料解析失敗，請重試。")
 
@@ -72,7 +74,8 @@ if st.button("取得我的位置"):
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
 # Add user location marker if available
-if user_lat and user_lon:
+if st.session_state.user_location:
+    user_lat, user_lon = st.session_state.user_location
     m.add_marker(location=(user_lat, user_lon), tooltip="您的位置", icon="blue")
 
 # Add filtered data to the map
