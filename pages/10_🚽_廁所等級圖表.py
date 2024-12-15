@@ -13,7 +13,7 @@ def load_data(filepath):
 filepath = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 
 # 加載資料
-st.title("公廁類別與等級分佈")
+st.title("公廁類別與等級關係圖")
 gdf = load_data(filepath)
 
 # 資料處理
