@@ -11,9 +11,9 @@ st.title("公廁互動地圖")
 # Add filter options above the map
 st.subheader("篩選條件")
 
-# Selection options for filtering
+# Multi-select options for filtering by public toilet category (公廁類別)
 toilet_types = ['全選'] + list(data['公廁類別'].unique())
-selected_type = st.selectbox("選擇公廁類別", options=toilet_types, index=0)
+selected_types = st.multiselect("選擇公廁類別", options=toilet_types, default=['全選'])
 
 # Multi-select options for filtering by administrative districts (行政區)
 districts = ['全選'] + list(data['行政區'].unique())
@@ -23,11 +23,11 @@ selected_districts = st.multiselect("選擇行政區", options=districts, defaul
 show_accessible = st.checkbox("顯示無障礙廁座數", value=True)
 show_parent_child = st.checkbox("顯示親子廁座數", value=True)
 
-# Filter data based on selected public toilet type
-if selected_type == '全選':
-    filtered_data = data.copy()
+# Filter data based on selected public toilet categories
+if '全選' not in selected_types:
+    filtered_data = data[data['公廁類別'].isin(selected_types)]
 else:
-    filtered_data = data[data['公廁類別'] == selected_type]
+    filtered_data = data.copy()
 
 # Further filter data based on selected administrative districts
 if '全選' not in selected_districts:
