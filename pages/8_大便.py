@@ -1,18 +1,10 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
-import pandas as pd
 from folium.plugins import HeatMap
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
-
-# Load feedback data from GitHub
-feedback_url = "https://raw.githubusercontent.com/your-repo/your-branch/feedback_data.csv"  # 替換為你的 GitHub 連結
-try:
-    feedback_data = pd.read_csv(feedback_url)
-except Exception as e:
-    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
 
 # Streamlit App
 st.title("公廁互動地圖")
@@ -48,15 +40,6 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
-# Merge feedback ratings into filtered data
-if not feedback_data.empty:
-    filtered_data = pd.merge(
-        filtered_data,
-        feedback_data[['公廁名稱', '評分']],
-        on='公廁名稱',
-        how='left'
-    )
-
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
@@ -70,7 +53,10 @@ for _, row in filtered_data.iterrows():
         f"<b>地址:</b> {row['公廁地址']}<br>"
         f"<b>管理單位:</b> {row['管理單位']}<br>"
         f"<b>座數:</b> {row['座數']}<br>"
-        f"<b>評分:</b> {row.get('評分', '無')}<br>"  # 顯示評分
+        f"<b>特優級:</b> {row['特優級']}<br>"
+        f"<b>優等級:</b> {row['優等級']}<br>"
+        f"<b>普通級:</b> {row['普通級']}<br>"
+        f"<b>改善級:</b> {row['改善級']}<br>"
     )
 
     if show_accessible:
@@ -92,6 +78,7 @@ for _, row in filtered_data.iterrows():
 heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
 
 # Prepare data for heatmap (use latitude and longitude for heatmap density)
+# Add seat count as weight to the heatmap data
 heatmap_data = [
     [row['緯度'], row['經度'], row['座數']]  # Add seat count as the weight
     for _, row in filtered_data.iterrows()
@@ -115,4 +102,4 @@ st.subheader("選擇的公廁資訊")
 if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
-    st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '評分', '無障礙廁座數', '親子廁座數']])
+    st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
