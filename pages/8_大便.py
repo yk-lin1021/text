@@ -1,7 +1,9 @@
 import streamlit as st
-import leafmap.foliumap as leafmap
 import geopandas as gpd
-from folium.plugins import HeatMap
+import pandas as pd
+from datetime import datetime
+import pytz
+import os
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
