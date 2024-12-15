@@ -78,10 +78,14 @@ for _, row in filtered_data.iterrows():
 heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
 
 # Prepare data for heatmap (use latitude and longitude for heatmap density)
-heatmap_data = filtered_data[['緯度', '經度']].values.tolist()
+# Add seat count as weight to the heatmap data
+heatmap_data = [
+    [row['緯度'], row['經度'], row['座數']]  # Add seat count as the weight
+    for _, row in filtered_data.iterrows()
+]
 
 # Add heatmap to the heatmap layer
-HeatMap(heatmap_data).add_to(heatmap_layer)
+HeatMap(heatmap_data, min_opacity=0.2, max_val=100).add_to(heatmap_layer)
 
 # Add both layers to the map
 m.add_child(marker_layer)
@@ -99,4 +103,3 @@ if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
     st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
-
