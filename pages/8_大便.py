@@ -1,5 +1,7 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
+import folium
+from folium.plugins import HeatMap
 import geopandas as gpd
 
 # Load the geojson file
@@ -39,8 +41,15 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
-# Initialize the map
-m = leafmap.Map(center=(25.033, 121.565), zoom=12)
+# Create a map with folium
+m = folium.Map(location=[25.033, 121.565], zoom_start=12)
+
+# Prepare data for the heatmap (coordinates of public toilets)
+heat_data = filtered_data[['緯度', '經度']].dropna()
+
+# Add HeatMap layer to the map
+heat_layer = HeatMap(heat_data.values, radius=15, blur=10)
+heat_layer.add_to(m)
 
 # Add filtered data to the map
 for _, row in filtered_data.iterrows():
@@ -60,10 +69,15 @@ for _, row in filtered_data.iterrows():
     if show_parent_child:
         popup_info += f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
 
-    m.add_marker(location=(row['緯度'], row['經度']), tooltip=popup_info, popup_max_width=300)
+    folium.Marker(
+        location=[row['緯度'], row['經度']],
+        popup=popup_info,
+        tooltip=row['公廁名稱']
+    ).add_to(m)
 
-# Display the map
-m.to_streamlit(height=700)
+# Display the map with heatmap in Streamlit
+st.subheader("熱力圖：公廁密度")
+st.components.v1.html(m._repr_html_(), height=700)
 
 # Show the filtered toilet information at the bottom
 st.subheader("選擇的公廁資訊")
@@ -71,4 +85,3 @@ if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
     st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
-
