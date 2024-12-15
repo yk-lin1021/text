@@ -1,6 +1,7 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
+from folium.plugins import HeatMap
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
@@ -42,7 +43,10 @@ if show_parent_child:
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
-# Add filtered data to the map
+# Create the markers layer (for public toilets)
+marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
+
+# Add filtered data to the markers layer
 for _, row in filtered_data.iterrows():
     popup_info = (
         f"<b>公廁名稱:</b> {row['公廁名稱']}<br>"
@@ -60,14 +64,31 @@ for _, row in filtered_data.iterrows():
     if show_parent_child:
         popup_info += f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
 
-    # Add marker with fixed popup size and tooltip on hover
-    m.add_marker(
-        location=(row['緯度'], row['經度']),
-        tooltip=popup_info,  # Tooltip on hover
-        popup=popup_info,    # Show popup on click
-        popup_max_width=250,  # Set fixed size for popup
-        popup_max_height=150  # Optional: you can also set a fixed height if needed
+    # Add marker to the marker layer
+    marker_layer.add_child(
+        leafmap.folium.Marker(
+            location=(row['緯度'], row['經度']),
+            popup=popup_info,
+            tooltip=popup_info,
+            icon=leafmap.folium.Icon(color='blue')
+        )
     )
+
+# Create the heatmap layer (for public toilet density)
+heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
+
+# Prepare data for heatmap (use latitude and longitude for heatmap density)
+heatmap_data = filtered_data[['緯度', '經度']].values.tolist()
+
+# Add heatmap to the heatmap layer
+HeatMap(heatmap_data).add_to(heatmap_layer)
+
+# Add both layers to the map
+m.add_child(marker_layer)
+m.add_child(heatmap_layer)
+
+# Add layer control to toggle between layers
+leafmap.folium.LayerControl().add_to(m)
 
 # Display the map
 m.to_streamlit(height=700)
@@ -78,3 +99,4 @@ if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
     st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
+
