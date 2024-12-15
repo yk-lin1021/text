@@ -64,10 +64,10 @@ for _, row in filtered_data.iterrows():
     # Default feedback message if no feedback found
     feedback_message = "<b>評分:</b> 尚無回饋"
 
-    # If feedback is found, display the latest rating
+    # If feedback is found, calculate and display the average rating
     if not feedback.empty:
-        latest_feedback = feedback.iloc[-1]  # Get the most recent feedback
-        feedback_message = f"<b>評分:</b> {latest_feedback['評分']} (提交於 {latest_feedback['回饋時間']})"
+        average_rating = feedback['評分'].mean()  # Calculate the average rating
+        feedback_message = f"<b>評分:</b> {average_rating:.2f} (來自 {len(feedback)} 個回饋)"
 
     popup_info = (
         f"<b>公廁名稱:</b> {row['公廁名稱']}<br>"
