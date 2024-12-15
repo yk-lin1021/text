@@ -1,20 +1,9 @@
-%pip install gspread oauth2client
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
 import geopandas as gpd
 import pandas as pd
 from datetime import datetime
 import pytz
 import os
-
-# 認證並連接 Google Sheets
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("your-credentials.json", scope)
-client = gspread.authorize(creds)
-
-# 開啟 Google Sheets
-sheet = client.open("Feedback Data").sheet1
 
 # 檔案路徑，用於儲存與讀取用戶回饋
 feedback_file = "feedback_data.csv"
@@ -80,7 +69,3 @@ else:
     # 顯示所有用戶回饋
     st.subheader("所有用戶回饋")
     st.dataframe(feedback_data)
-
-# 將新回饋資料寫入 Sheets
-new_feedback = [selected_district, selected_category, toilet_choice, rating, current_time]
-sheet.append_row(new_feedback)
