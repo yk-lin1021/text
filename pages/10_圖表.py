@@ -39,7 +39,7 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     selected_data = melted_data[melted_data['公廁類別'] == selected_category]
 
     # 繪製圓餅圖
-    fig = px.pie(
+    fig2 = px.pie(
         selected_data,
         names="級數",
         values="比例",
@@ -49,6 +49,21 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     )
 
     # 顯示圓餅圖
-    st.plotly_chart(fig)
+    st.plotly_chart(fig2)
+
+    # 繪製長條圖（顯示所有類別的級數數量）
+    fig1 = px.bar(
+        melted_data,
+        x="公廁類別",
+        y="數量",
+        color="級數",
+        title="公廁類別與級數分佈",
+        labels={"公廁類別": "公廁類別", "數量": "數量", "級數": "級數"},
+        barmode="group",
+    )
+
+    # 顯示長條圖
+    st.plotly_chart(fig1)
+
 else:
     st.error("資料中缺少必要的欄位：'公廁類別' 或 '特優級', '優等級', '普通級', '改善級'")
