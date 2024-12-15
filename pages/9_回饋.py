@@ -3,22 +3,13 @@ import geopandas as gpd
 import pandas as pd
 
 # 讀取 GeoJSON 檔案
-file_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
+file_path = "/mnt/data/廁所位置.geojson"
 toilets_gdf = gpd.read_file(file_path)
 
-# 假設 GeoJSON 包含地址 (address) 和廁所名稱 (name) 欄位
-if "address" not in toilets_gdf.columns or "name" not in toilets_gdf.columns:
-    st.error("GeoJSON 檔案缺少必要的 'address' 或 'name' 欄位，請確認檔案格式。")
+# 假設 GeoJSON 包含行政區 (district) 和廁所名稱 (name) 欄位
+if "district" not in toilets_gdf.columns or "name" not in toilets_gdf.columns:
+    st.error("GeoJSON 檔案缺少必要的 'district' 或 'name' 欄位，請確認檔案格式。")
 else:
-    # 提取行政區資料
-    def extract_district(address):
-        # 假設地址格式為 "台北市中正區某某路" 或 "中正區某某路"
-        import re
-        match = re.search(r"[縣市](\S+?區)", address)
-        return match.group(1) if match else "未知行政區"
-
-    toilets_gdf["district"] = toilets_gdf["address"].apply(extract_district)
-
     # 初始化回饋資料
     if "feedback_data" not in st.session_state:
         st.session_state.feedback_data = pd.DataFrame(columns=["行政區", "廁所名稱", "評分", "回饋時間"])
