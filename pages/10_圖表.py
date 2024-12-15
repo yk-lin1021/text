@@ -17,18 +17,14 @@ st.title("公廁類別與級數分佈")
 gdf = load_data(filepath)
 
 # 資料處理
-# 假設有「公廁類別」和「級數」兩個欄位
-if '公廁類別' in gdf.columns and '級數' in gdf.columns:
-    # 統計數據
-    grouped_data = gdf.groupby(['公廁類別', '級數']).size().reset_index(name='數量')
-
-    # 確保級數按正確的順序排列
-    ordered_levels = ["特優級", "優等級", "普通級", "改善級"]
-    grouped_data['級數'] = pd.Categorical(grouped_data['級數'], categories=ordered_levels, ordered=True)
+if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
+    # 轉換為長格式
+    level_columns = ['特優級', '優等級', '普通級', '改善級']
+    melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='級數', value_name='數量')
 
     # 繪製圖表
     fig = px.bar(
-        grouped_data,
+        melted_data,
         x="公廁類別",
         y="數量",
         color="級數",
@@ -40,4 +36,4 @@ if '公廁類別' in gdf.columns and '級數' in gdf.columns:
     # 顯示圖表
     st.plotly_chart(fig)
 else:
-    st.error("資料中缺少必要的欄位：'公廁類別' 或 '級數'")
+    st.error("資料中缺少必要的欄位：'公廁類別' 或 '特優級', '優等級', '普通級', '改善級'")
