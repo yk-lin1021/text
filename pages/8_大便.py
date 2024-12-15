@@ -6,6 +6,13 @@ from folium.plugins import HeatMap
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
 
+# 讀取 GitHub 上的評分資料
+feedback_url = "https://raw.githubusercontent.com/your-repo/your-branch/feedback_data.csv"
+try:
+    feedback_data = pd.read_csv(feedback_url)
+except Exception as e:
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+
 # Streamlit App
 st.title("公廁互動地圖")
 
@@ -40,6 +47,15 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
+# Merge feedback ratings into filtered data
+if not feedback_data.empty:
+    filtered_data = pd.merge(
+        filtered_data,
+        feedback_data[['公廁名稱', '評分']],
+        on='公廁名稱',
+        how='left'
+    )
+
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
@@ -57,6 +73,7 @@ for _, row in filtered_data.iterrows():
         f"<b>優等級:</b> {row['優等級']}<br>"
         f"<b>普通級:</b> {row['普通級']}<br>"
         f"<b>改善級:</b> {row['改善級']}<br>"
+        f"<b>評分:</b> {row.get('評分', '無')}<br>"
     )
 
     if show_accessible:
@@ -102,4 +119,4 @@ st.subheader("選擇的公廁資訊")
 if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
-    st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
+    st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '座數', '評分', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
