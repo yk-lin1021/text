@@ -1,6 +1,8 @@
 import streamlit as st
 import geopandas as gpd
 import pandas as pd
+from datetime import datetime
+import pytz
 
 # 讀取 GeoJSON 檔案
 file_url = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
@@ -40,13 +42,17 @@ else:
 
     # 提交按鈕
     if st.button("提交回饋"):
+        # 取得當前時間並轉換為 GMT+8
+        taipei_tz = pytz.timezone("Asia/Taipei")
+        current_time = datetime.now(taipei_tz)
+
         # 儲存回饋資料
         new_feedback = pd.DataFrame({
             "行政區": [selected_district],
             "公廁類別": [selected_category],
             "公廁名稱": [toilet_choice],
             "評分": [rating],
-            "回饋時間": [pd.Timestamp.now()]
+            "回饋時間": [current_time.strftime("%Y-%m-%d %H:%M:%S")]  # 格式化時間為字串
         })
 
         # 使用 pd.concat() 來合併新資料
@@ -56,4 +62,5 @@ else:
     # 顯示回饋表單
     st.subheader("所有用戶回饋")
     st.dataframe(st.session_state.feedback_data)
+
 
