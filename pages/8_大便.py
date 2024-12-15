@@ -20,8 +20,8 @@ districts = ['全選'] + list(data['行政區'].unique())
 selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
 
 # Checkbox options for additional information
-show_accessible = st.checkbox("顯示無障礙廁座", value=True)
-show_parent_child = st.checkbox("顯示親子廁座", value=True)
+show_accessible = st.checkbox("無障礙廁座", value=True)
+show_parent_child = st.checkbox("親子廁座", value=True)
 
 # Filter data based on selected public toilet categories
 if '全選' not in selected_types:
