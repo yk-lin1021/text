@@ -31,29 +31,23 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     # 計算比例
     melted_data['比例'] = melted_data['數量'] / melted_data['總數量']
 
-    # 繪製數量圖
-    fig1 = px.bar(
-        melted_data,
-        x="公廁類別",
-        y="數量",
-        color="級數",
-        title="公廁類別與級數分佈",
-        labels={"公廁類別": "公廁類別", "數量": "數量", "級數": "級數"},
-        barmode="group",
-    )
+    # 按類別分組繪製圓餅圖
+    categories = melted_data['公廁類別'].unique()
 
-    # 繪製圓餅圖
-    fig2 = px.pie(
-        melted_data,
-        names="級數",
-        values="比例",
-        title="公廁類別與級數比例分佈",
-        color="級數",
-        hole=0.3,  # 用來製作圓環圖（如果你希望有個中空圓餅圖的效果）
-    )
+    for category in categories:
+        category_data = melted_data[melted_data['公廁類別'] == category]
+        
+        # 繪製圓餅圖
+        fig = px.pie(
+            category_data,
+            names="級數",
+            values="比例",
+            title=f"{category} - 公廁級數比例",
+            color="級數",
+            hole=0.3,  # 可選：用來製作圓環圖
+        )
 
-    # 顯示圖表
-    st.plotly_chart(fig1)
-    st.plotly_chart(fig2)
+        # 顯示每個公廁類別的圓餅圖
+        st.plotly_chart(fig)
 else:
     st.error("資料中缺少必要的欄位：'公廁類別' 或 '特優級', '優等級', '普通級', '改善級'")
