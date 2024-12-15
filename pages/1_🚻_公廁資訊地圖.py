@@ -49,6 +49,17 @@ if show_accessible:
 if show_parent_child:
     filtered_data = filtered_data[filtered_data['親子廁座數'] > 0]
 
+# Calculate the average rating for each public toilet
+def calculate_average_rating(toilet_name):
+    feedback = feedback_data[feedback_data['公廁名稱'] == toilet_name]
+    if not feedback.empty:
+        return feedback['評分'].mean()
+    else:
+        return None
+
+# Add average rating to filtered_data
+filtered_data['平均評分'] = filtered_data['公廁名稱'].apply(calculate_average_rating)
+
 # Initialize the map
 m = leafmap.Map(center=(25.033, 121.565), zoom=12)
 
@@ -57,7 +68,6 @@ marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
 
 # Add filtered data to the markers layer
 for _, row in filtered_data.iterrows():
-    # Get feedback for the current toilet if available
     toilet_name = row['公廁名稱']
     feedback = feedback_data[feedback_data['公廁名稱'] == toilet_name]
 
@@ -121,19 +131,13 @@ leafmap.folium.LayerControl().add_to(m)
 # Display the map
 m.to_streamlit(height=700)
 
-# Calculate the average rating for each public toilet and add it as a new column
-def calculate_average_rating(toilet_name):
-    feedback = feedback_data[feedback_data['公廁名稱'] == toilet_name]
-    if not feedback.empty:
-        return feedback['評分'].mean()  # Calculate the average rating
-    return None  # Return None if no feedback
-
-# Add the average rating to the filtered data
-filtered_data['平均評分'] = filtered_data['公廁名稱'].apply(calculate_average_rating)
-
-# Display the filtered data with the average rating included
+# Show the filtered toilet information at the bottom
 st.subheader("選擇的公廁資訊")
 if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
     st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '平均評分', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
+
+# Display the table with the average ratings as well
+st.subheader("篩選後的公廁資訊與平均評分")
+st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '平均評分', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
