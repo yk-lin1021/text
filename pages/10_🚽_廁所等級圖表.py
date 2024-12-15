@@ -44,7 +44,7 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         names="等級",
         values="比例",
         title=f"{selected_category} - 公廁等級比例",
-        color="級數",
+        color="等級",
         hole=0.3,  # 可選：用來製作圓環圖
     )
 
