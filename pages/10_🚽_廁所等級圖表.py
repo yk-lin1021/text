@@ -20,7 +20,7 @@ gdf = load_data(filepath)
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
     # 轉換為長格式
     level_columns = ['特優級', '優等級', '普通級', '改善級']
-    melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='級等', value_name='數量')
+    melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='等級', value_name='數量')
 
     # 計算每個公廁類別的總數量
     total_per_category = melted_data.groupby('公廁類別')['數量'].sum().reset_index(name='總數量')
