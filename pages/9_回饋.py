@@ -3,10 +3,10 @@ import geopandas as gpd
 import pandas as pd
 
 # 讀取 GeoJSON 檔案
-file_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
-toilets_gdf = gpd.read_file(file_path)
+file_url = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
+toilets_gdf = gpd.read_file(file_url)
 
-# 假設 GeoJSON 包含行政區 (district) 和廁所名稱 (name) 欄位
+# 假設 GeoJSON 包含行政區和公廁名稱欄位
 if "行政區" not in toilets_gdf.columns or "公廁名稱" not in toilets_gdf.columns:
     st.error("GeoJSON 檔案缺少必要的 '行政區' 或 '公廁名稱' 欄位，請確認檔案格式。")
 else:
@@ -35,13 +35,15 @@ else:
     # 提交按鈕
     if st.button("提交回饋"):
         # 儲存回饋資料
-        new_feedback = {
-            "行政區": selected_district,
-            "公廁名稱": toilet_choice,
-            "評分": rating,
-            "回饋時間": pd.Timestamp.now()
-        }
-        st.session_state.feedback_data = st.session_state.feedback_data.append(new_feedback, ignore_index=True)
+        new_feedback = pd.DataFrame({
+            "行政區": [selected_district],
+            "公廁名稱": [toilet_choice],
+            "評分": [rating],
+            "回饋時間": [pd.Timestamp.now()]
+        })
+
+        # 使用 pd.concat() 來合併新資料
+        st.session_state.feedback_data = pd.concat([st.session_state.feedback_data, new_feedback], ignore_index=True)
         st.success("回饋已提交，謝謝您的參與！")
 
     # 顯示回饋表單
