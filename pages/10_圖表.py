@@ -42,15 +42,14 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         barmode="group",
     )
 
-    # 繪製比例圖
-    fig2 = px.bar(
+    # 繪製圓餅圖
+    fig2 = px.pie(
         melted_data,
-        x="公廁類別",
-        y="比例",
-        color="級數",
+        names="級數",
+        values="比例",
         title="公廁類別與級數比例分佈",
-        labels={"公廁類別": "公廁類別", "比例": "比例", "級數": "級數"},
-        barmode="group",
+        color="級數",
+        hole=0.3,  # 用來製作圓環圖（如果你希望有個中空圓餅圖的效果）
     )
 
     # 顯示圖表
