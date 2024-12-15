@@ -56,9 +56,9 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         melted_data,
         x="公廁類別",
         y="數量",
-        color="級數",
+        color="等級",
         title="公廁類別與等級分佈",
-        labels={"公廁類別": "公廁類別", "數量": "數量", "級數": "級數"},
+        labels={"公廁類別": "公廁類別", "數量": "數量", "等級": "等級"},
         barmode="group",
     )
 
