@@ -69,3 +69,5 @@ else:
     # 顯示所有用戶回饋
     st.subheader("所有用戶回饋")
     st.dataframe(feedback_data)
+    feedback_data.to_csv("feedback_data.csv", index=False)
+# 將檔案上傳到 GitHub，使用 GitHub CLI 或 API 進行上傳
