@@ -2,9 +2,17 @@ import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
 from folium.plugins import HeatMap
+import pandas as pd
 
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
+
+# Load the feedback data
+feedback_file = "feedback_data.csv"
+if os.path.exists(feedback_file):
+    feedback_data = pd.read_csv(feedback_file)
+else:
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
 
 # Streamlit App
 st.title("公廁互動地圖")
@@ -12,13 +20,13 @@ st.title("公廁互動地圖")
 # Add filter options above the map
 st.subheader("篩選條件")
 
-# Multi-select options for filtering by administrative districts (行政區)
-districts = ['全選'] + list(data['行政區'].unique())
-selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
-
 # Multi-select options for filtering by public toilet category (公廁類別)
 toilet_types = ['全選'] + list(data['公廁類別'].unique())
 selected_types = st.multiselect("選擇公廁類別", options=toilet_types, default=['全選'])
+
+# Multi-select options for filtering by administrative districts (行政區)
+districts = ['全選'] + list(data['行政區'].unique())
+selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
 
 # Checkbox options for additional information
 show_accessible = st.checkbox("無障礙廁座", value=True)
@@ -48,6 +56,18 @@ marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
 
 # Add filtered data to the markers layer
 for _, row in filtered_data.iterrows():
+    # Get feedback for the current toilet if available
+    toilet_name = row['公廁名稱']
+    feedback = feedback_data[feedback_data['公廁名稱'] == toilet_name]
+
+    # Default feedback message if no feedback found
+    feedback_message = "<b>評分:</b> 尚無回饋"
+
+    # If feedback is found, display the latest rating
+    if not feedback.empty:
+        latest_feedback = feedback.iloc[-1]  # Get the most recent feedback
+        feedback_message = f"<b>評分:</b> {latest_feedback['評分']} (提交於 {latest_feedback['回饋時間']})"
+
     popup_info = (
         f"<b>公廁名稱:</b> {row['公廁名稱']}<br>"
         f"<b>地址:</b> {row['公廁地址']}<br>"
@@ -57,6 +77,7 @@ for _, row in filtered_data.iterrows():
         f"<b>優等級:</b> {row['優等級']}<br>"
         f"<b>普通級:</b> {row['普通級']}<br>"
         f"<b>改善級:</b> {row['改善級']}<br>"
+        f"{feedback_message}<br>"  # Include the feedback message
     )
 
     if show_accessible:
@@ -74,6 +95,9 @@ for _, row in filtered_data.iterrows():
         )
     )
 
+# Add the marker layer to the map
+m.add_child(marker_layer)
+
 # Create the heatmap layer (for public toilet density)
 heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
 
@@ -88,7 +112,6 @@ heatmap_data = [
 HeatMap(heatmap_data, min_opacity=0.2, max_val=100).add_to(heatmap_layer)
 
 # Add both layers to the map
-m.add_child(marker_layer)
 m.add_child(heatmap_layer)
 
 # Add layer control to toggle between layers
