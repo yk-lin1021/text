@@ -26,7 +26,7 @@ else:
     district_list = sorted(toilets_gdf["行政區"].unique())
     category_list = sorted(toilets_gdf["公廁類別"].unique())
 
-    st.title("廁所回饋系統")
+    st.title("公廁回饋系統")
 
     # 行政區選擇
     selected_district = st.selectbox("請選擇行政區", district_list)
