@@ -137,7 +137,3 @@ if filtered_data.empty:
     st.write("沒有符合條件的公廁。")
 else:
     st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '平均評分', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
-
-# Display the table with the average ratings as well
-st.subheader("篩選後的公廁資訊與平均評分")
-st.dataframe(filtered_data[['公廁名稱', '公廁地址', '管理單位', '平均評分', '座數', '特優級', '優等級', '普通級', '改善級', '無障礙廁座數', '親子廁座數']])
