@@ -6,14 +6,6 @@ import plotly.express as px
 # 讀取 GeoJSON 資料
 @st.cache_data
 def load_data(filepath):
-    gdf = gpd.import streamlit as st
-import pandas as pd
-import geopandas as gpd
-import plotly.express as px
-
-# 讀取 GeoJSON 資料
-@st.cache_data
-def load_data(filepath):
     gdf = gpd.read_file(filepath)
     return gdf
 
@@ -66,4 +58,3 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     st.plotly_chart(fig2)
 else:
     st.error("資料中缺少必要的欄位：'公廁類別' 或 '特優級', '優等級', '普通級', '改善級'")
-
