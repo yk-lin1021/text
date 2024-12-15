@@ -13,14 +13,14 @@ def load_data(filepath):
 filepath = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 
 # 加載資料
-st.title("公廁類別與級數分佈")
+st.title("公廁類別和等級關係圖")
 gdf = load_data(filepath)
 
 # 資料處理
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
     # 轉換為長格式
     level_columns = ['特優級', '優等級', '普通級', '改善級']
-    melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='級數', value_name='數量')
+    melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='級等', value_name='數量')
 
     # 計算每個公廁類別的總數量
     total_per_category = melted_data.groupby('公廁類別')['數量'].sum().reset_index(name='總數量')
@@ -41,10 +41,10 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     # 繪製圓餅圖
     fig2 = px.pie(
         selected_data,
-        names="級數",
+        names="等級圓餅圖",
         values="比例",
         title=f"{selected_category} - 公廁級數比例",
-        color="級數",
+        color="等級",
         hole=0.3,  # 可選：用來製作圓環圖
     )
 
@@ -56,9 +56,9 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         melted_data,
         x="公廁類別",
         y="數量",
-        color="級數",
-        title="公廁類別與級數分佈",
-        labels={"公廁類別": "公廁類別", "數量": "數量", "級數": "級數"},
+        color="等級",
+        title="公廁類別與等級(數量)",
+        labels={"公廁類別": "公廁類別", "數量": "數量", "等級": "等級"},
         barmode="group",
     )
 
