@@ -2,7 +2,6 @@ import streamlit as st
 import leafmap.foliumap as leafmap
 import geopandas as gpd
 
-
 # Load the geojson file
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
 
@@ -16,15 +15,23 @@ st.subheader("篩選條件")
 toilet_types = ['全選'] + list(data['公廁類別'].unique())
 selected_type = st.selectbox("選擇公廁類別", options=toilet_types, index=0)
 
+# Multi-select options for filtering by administrative districts (行政區)
+districts = ['全選'] + list(data['行政區'].unique())
+selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
+
 # Checkbox options for additional information
 show_accessible = st.checkbox("顯示無障礙廁座數", value=True)
 show_parent_child = st.checkbox("顯示親子廁座數", value=True)
 
-# Filter data based on selection
+# Filter data based on selected public toilet type
 if selected_type == '全選':
     filtered_data = data.copy()
 else:
     filtered_data = data[data['公廁類別'] == selected_type]
+
+# Further filter data based on selected administrative districts
+if '全選' not in selected_districts:
+    filtered_data = filtered_data[filtered_data['行政區'].isin(selected_districts)]
 
 # Further filter data based on checkboxes
 if show_accessible:
