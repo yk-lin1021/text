@@ -1,8 +1,7 @@
 from github import Github
-
+import os
 # 用您的 GitHub 令牌替換這裡
-GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
 # 使用 GitHub 令牌初始化 PyGithub
 g = Github(GITHUB_TOKEN)
 
