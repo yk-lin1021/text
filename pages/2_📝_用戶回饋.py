@@ -3,10 +3,17 @@ import geopandas as gpd
 import pandas as pd
 from datetime import datetime
 import pytz
-import os
+import requests
+from github import Github
+from io import StringIO
 
-# 檔案路徑，用於儲存與讀取用戶回饋
-feedback_file = "feedback_data.csv"
+# GitHub 設定
+REPO_NAME = 'yk-lin1021/113-1gis'
+FILE_PATH = 'feedback_data.csv'
+
+# 初始化 GitHub API
+g = Github(GITHUB_TOKEN)
+repo = g.get_repo(REPO_NAME)
 
 # 讀取 GeoJSON 檔案
 file_url = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
@@ -17,10 +24,18 @@ if "行政區" not in toilets_gdf.columns or "公廁名稱" not in toilets_gdf.c
     st.error("GeoJSON 檔案缺少必要的 '行政區', '公廁名稱' 或 '公廁類別' 欄位，請確認檔案格式。")
 else:
     # 讀取或初始化回饋資料
-    if os.path.exists(feedback_file):
-        feedback_data = pd.read_csv(feedback_file)
-    else:
+    try:
+        # 下載 GitHub 上的 CSV 文件
+        file_url = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/feedback_data.csv"
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            csv_content = response.content.decode('utf-8')
+            feedback_data = pd.read_csv(StringIO(csv_content))
+        else:
+            feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+    except Exception as e:
         feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+        st.error(f"無法讀取 GitHub 上的 CSV 文件: {e}")
 
     # 提取行政區與公廁類別列表
     district_list = sorted(toilets_gdf["行政區"].unique())
@@ -61,10 +76,26 @@ else:
             "回饋時間": [current_time]
         })
 
-        # 更新回饋資料並儲存到檔案
+        # 更新回饋資料
         feedback_data = pd.concat([feedback_data, new_feedback], ignore_index=True)
-        feedback_data.to_csv(feedback_file, index=False)
-        st.success("回饋已提交，謝謝您的參與！")
+
+        # 轉換為 CSV 格式
+        updated_csv = feedback_data.to_csv(index=False)
+
+        # 上傳更新後的文件
+        try:
+            # 取得原文件 SHA 值
+            file = repo.get_contents(FILE_PATH)
+            commit_message = "更新回饋資料"
+            repo.update_file(
+                path=FILE_PATH,
+                message=commit_message,
+                content=updated_csv,
+                sha=file.sha  # 必須提供文件的 SHA 值
+            )
+            st.success("回饋已提交，謝謝您的參與！")
+        except Exception as e:
+            st.error(f"無法更新 GitHub 上的 CSV 文件: {e}")
 
     # 顯示所有用戶回饋
     st.subheader("所有用戶回饋")
