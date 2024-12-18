@@ -7,7 +7,7 @@ import os
 from github import Github  # PyGithub 模組
 
 # GitHub 設定
-GITHUB_TOKEN = st.secrets("GITHUB_TOKEN")  # 從環境變數讀取
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]  # 從環境變數讀取
 REPO_NAME = 'yk-lin1021/113-1gis'
 FILE_PATH = 'feedback_data.csv'
 
