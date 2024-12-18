@@ -7,10 +7,9 @@ import pandas as pd
 from github import Github
 import io
 
-# GitHub 配置
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
-REPO_NAME = "yk-lin1021/113-1gis"  # 替換為您的儲存庫名稱
-FEEDBACK_FILE_PATH = "feedback_data.csv"  # 儲存回饋資料的檔案路徑
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
+REPO_NAME = 'yk-lin1021/113-1gis'
+FILE_PATH = 'feedback_data.csv'
 
 # 初始化 GitHub API
 g = Github(GITHUB_TOKEN)
