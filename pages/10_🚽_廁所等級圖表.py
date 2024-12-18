@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
-import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # 讀取 GeoJSON 資料
 @st.cache_data
@@ -39,31 +40,34 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
     selected_data = melted_data[melted_data['公廁類別'] == selected_category]
 
     # 繪製圓餅圖
-    fig2 = px.pie(
-        selected_data,
-        names="等級",
-        values="比例",
-        title=f"{selected_category} - 公廁等級比例",
-        color="等級",
-        hole=0.3,  # 可選：用來製作圓環圖
+    st.subheader(f"{selected_category} - 公廁等級比例")
+    fig_pie, ax_pie = plt.subplots(figsize=(8, 8))
+    ax_pie.pie(
+        selected_data['比例'],
+        labels=selected_data['等級'],
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=sns.color_palette("pastel")
     )
-
-    # 顯示圓餅圖
-    st.plotly_chart(fig2)
+    ax_pie.set_title(f"{selected_category} - 公廁等級比例")
+    st.pyplot(fig_pie)
 
     # 繪製長條圖（顯示所有類別的級數數量）
-    fig1 = px.bar(
-        melted_data,
-        x="公廁類別",
-        y="數量",
-        color="等級",
-        title="公廁類別與等級分佈",
-        labels={"公廁類別": "公廁類別", "數量": "數量", "等級": "等級"},
-        barmode="group",
+    st.subheader("公廁類別與等級分佈")
+    fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
+    sns.barplot(
+        data=melted_data,
+        x='公廁類別',
+        y='數量',
+        hue='等級',
+        palette="muted",
+        ax=ax_bar
     )
-
-    # 顯示長條圖
-    st.plotly_chart(fig1)
+    ax_bar.set_title("公廁類別與等級分佈")
+    ax_bar.set_xlabel("公廁類別")
+    ax_bar.set_ylabel("數量")
+    plt.xticks(rotation=45)
+    st.pyplot(fig_bar)
 
 else:
     st.error("資料中缺少必要的欄位：'公廁類別' 或 '特優級', '優等級', '普通級', '改善級'")
