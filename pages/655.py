@@ -1,7 +1,7 @@
 from github import Github
 
 # 用您的 GitHub 令牌替換這裡
-GITHUB_TOKEN = "your_github_token_here"
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
 # 使用 GitHub 令牌初始化 PyGithub
 g = Github(GITHUB_TOKEN)
