@@ -2,23 +2,63 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 import plotly.express as px
+from github import Github
+import os
 
 # 讀取 GeoJSON 資料
 @st.cache_data
-def load_data(filepath):
+def load_geojson(filepath):
     gdf = gpd.read_file(filepath)
     return gdf
 
-# 設定檔案路徑
-filepath = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
+# 讀取 GitHub 上的回饋資料
+@st.cache_data
+def load_feedback_from_github(token, repo_name, file_path):
+    g = Github(token)
+    repo = g.get_repo(repo_name)
+    file_content = repo.get_contents(file_path)
+    # 解碼 CSV 內容並轉為 DataFrame
+    feedback_data = pd.read_csv(pd.compat.StringIO(file_content.decoded_content.decode()))
+    return feedback_data
 
-# 加載資料
-st.title("公廁類別與等級關係圖")
-gdf = load_data(filepath)
+# 設定檔案路徑與初始化
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
+REPO_NAME = 'yk-lin1021/113-1gis'
+FILE_PATH = 'feedback_data.csv'
+geojson_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 
-# 資料處理
+# 標題
+st.title("公廁分析：等級與用戶回饋")
+gdf = load_geojson(geojson_path)
+
+# 加載 GitHub 的回饋資料
+try:
+    feedback_df = load_feedback_from_github(GITHUB_TOKEN, REPO_NAME, FILE_PATH)
+
+    # 確保回饋資料中存在必要欄位
+    if 'category' in feedback_df.columns and 'rating' in feedback_df.columns:
+        # 計算每個公廁類別的平均評分
+        avg_rating = feedback_df.groupby('category')['rating'].mean().reset_index()
+        avg_rating = avg_rating.rename(columns={"category": "公廁類別", "rating": "平均評分"})
+
+        # 繪製平均評分的長條圖
+        fig3 = px.bar(
+            avg_rating,
+            x="公廁類別",
+            y="平均評分",
+            title="公廁類別與平均評分",
+            labels={"公廁類別": "公廁類別", "平均評分": "平均評分"},
+            color="平均評分",
+            color_continuous_scale="Viridis"
+        )
+        st.plotly_chart(fig3)
+    else:
+        st.error("回饋資料缺少必要的欄位：'category' 或 'rating'")
+except Exception as e:
+    st.error(f"無法載入回饋資料：{str(e)}")
+
+# 繼續原本的等級分佈分析
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
-    
     # 轉換為長格式
     level_columns = ['特優級', '優等級', '普通級', '改善級']
     melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='等級', value_name='數量')
@@ -46,7 +86,7 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         values="比例",
         title=f"{selected_category} - 公廁等級比例",
         color="等級",
-        hole=0.3,  # 可選：用來製作圓環圖
+        hole=0.3,
     )
 
     # 顯示圓餅圖
@@ -60,7 +100,8 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
         color="等級",
         title="公廁類別與等級分佈",
         labels={"公廁類別": "公廁類別", "數量": "數量", "等級": "等級"},
-        barmode="group",  )
+        barmode="group",
+    )
     
     # 顯示長條圖
     st.plotly_chart(fig1)
