@@ -60,7 +60,15 @@ except Exception as e:
 
 # 繼續原本的等級分佈分析
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
+    
     st.subheader("環保局-公廁設施環境衛生檢查評分")
+    # 顯示內文
+st.markdown("""
+一、**特優級**：九十五分以上。  
+二、**優等級**：八十六分以上九十四分以下。  
+三、**普通級**：七十六分以上八十五分以下。  
+四、**改善級**：七十五分以下。  
+""")
     # 轉換為長格式
     level_columns = ['特優級', '優等級', '普通級', '改善級']
     melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='等級', value_name='數量')
