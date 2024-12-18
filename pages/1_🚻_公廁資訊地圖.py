@@ -21,13 +21,13 @@ st.title("公廁互動地圖")
 # 在地圖上方新增篩選條件
 st.subheader("篩選條件")
 
-# 提供多選選項篩選公廁類別
-toilet_types = ['全選'] + list(data['公廁類別'].unique())
-selected_types = st.multiselect("選擇公廁類別", options=toilet_types, default=['全選'])
-
 # 提供多選選項篩選行政區
 districts = ['全選'] + list(data['行政區'].unique())
 selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
+
+# 提供多選選項篩選公廁類別
+toilet_types = ['全選'] + list(data['公廁類別'].unique())
+selected_types = st.multiselect("選擇公廁類別", options=toilet_types, default=['全選'])
 
 # 勾選選項以顯示附加資訊
 show_accessible = st.checkbox("無障礙廁座", value=True)
