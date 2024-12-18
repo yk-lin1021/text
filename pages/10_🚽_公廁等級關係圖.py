@@ -6,6 +6,10 @@ from github import Github
 import os
 from io import StringIO  # 導入 StringIO
 
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
+REPO_NAME = 'yk-lin1021/113-1gis'
+FILE_PATH = 'feedback_data.csv'
+
 # 讀取 GeoJSON 資料
 @st.cache_data
 def load_geojson(filepath):
@@ -23,9 +27,7 @@ def load_feedback_from_github(token, repo_name, file_path):
     return feedback_data
 
 # 設定檔案路徑與初始化
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
-REPO_NAME = 'yk-lin1021/113-1gis'
-FILE_PATH = 'feedback_data.csv'
+
 geojson_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 
 # 標題
