@@ -50,7 +50,7 @@ try:
             title="公廁類別與平均評分",
             labels={"公廁類別": "公廁類別", "平均評分": "平均評分"},
             color="平均評分",
-            color_continuous_scale="Viridis"
+            color_continuous_scale="RdYlGn"
         )
         st.plotly_chart(fig3)
     else:
