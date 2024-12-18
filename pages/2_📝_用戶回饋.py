@@ -54,7 +54,7 @@ else:
     toilet_choice = st.selectbox("請選擇公廁", toilet_list)
 
     # 評分輸入
-    rating = st.slider("請給予評分 (1-5)", 1, 5, 3)
+    rating = st.slider("請給予評分 (1-5，5為體驗較好)", 1, 5, 3)
 
     # 提交按鈕
     if st.button("提交回饋"):
