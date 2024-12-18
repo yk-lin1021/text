@@ -8,7 +8,7 @@ from github import Github
 import io
 
 # GitHub 配置
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"] 
 REPO_NAME = "yk-lin1021/113-1gis"  # 替換為您的儲存庫名稱
 FEEDBACK_FILE_PATH = "feedback_data.csv"  # 儲存回饋資料的檔案路徑
 
