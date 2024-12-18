@@ -4,6 +4,16 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import os
+from github import Github  # PyGithub 模組
+
+# GitHub 設定
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
+REPO_NAME = 'yk-lin1021/113-1gis'
+FILE_PATH = 'feedback_data.csv'
+
+# 初始化 GitHub API
+g = Github(GITHUB_TOKEN)
+repo = g.get_repo(REPO_NAME)
 
 # 檔案路徑，用於儲存與讀取用戶回饋
 feedback_file = "feedback_data.csv"
@@ -61,10 +71,28 @@ else:
             "回饋時間": [current_time]
         })
 
-        # 更新回饋資料並儲存到檔案
+        # 更新本地回饋資料
         feedback_data = pd.concat([feedback_data, new_feedback], ignore_index=True)
         feedback_data.to_csv(feedback_file, index=False)
         st.success("回饋已提交，謝謝您的參與！")
+
+        # 更新至 GitHub
+        try:
+            # 轉換為 CSV 格式
+            updated_csv = feedback_data.to_csv(index=False)
+
+            # 取得原文件 SHA 值
+            file = repo.get_contents(FILE_PATH)
+            commit_message = "更新回饋資料"
+            repo.update_file(
+                path=FILE_PATH,
+                message=commit_message,
+                content=updated_csv,
+                sha=file.sha  # 必須提供文件的 SHA 值
+            )
+            st.success("回饋資料已成功同步到 GitHub！")
+        except Exception as e:
+            st.error(f"無法更新 GitHub 上的 CSV 文件: {e}")
 
     # 顯示所有用戶回饋
     st.subheader("所有用戶回饋")
