@@ -4,6 +4,7 @@ import geopandas as gpd
 import plotly.express as px
 from github import Github
 import os
+from io import StringIO  # 導入 StringIO
 
 # 讀取 GeoJSON 資料
 @st.cache_data
@@ -18,7 +19,7 @@ def load_feedback_from_github(token, repo_name, file_path):
     repo = g.get_repo(repo_name)
     file_content = repo.get_contents(file_path)
     # 解碼 CSV 內容並轉為 DataFrame
-    feedback_data = pd.read_csv(pd.compat.StringIO(file_content.decoded_content.decode()))
+    feedback_data = pd.read_csv(StringIO(file_content.decoded_content.decode()))  # 使用 StringIO
     return feedback_data
 
 # 設定檔案路徑與初始化
