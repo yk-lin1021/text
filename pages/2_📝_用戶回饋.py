@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import requests
-from github import Github
 from io import StringIO
 
 # GitHub 設定
