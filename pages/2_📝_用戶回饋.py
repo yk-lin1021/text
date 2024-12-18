@@ -13,7 +13,7 @@ FEEDBACK_FILE_PATH = "feedback_data.csv"
 
 # 初始化 GitHub API
 g = Github(GITHUB_TOKEN)
-repo = g.get_repo(REPO_NAME)
+
 
 # 檔案路徑，用於儲存與讀取用戶回饋
 feedback_file = "feedback_data.csv"
