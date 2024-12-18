@@ -37,10 +37,10 @@ try:
     feedback_df = load_feedback_from_github(GITHUB_TOKEN, REPO_NAME, FILE_PATH)
 
     # 確保回饋資料中存在必要欄位
-    if 'category' in feedback_df.columns and 'rating' in feedback_df.columns:
+    if '公廁類別' in feedback_df.columns and '評分' in feedback_df.columns:
         # 計算每個公廁類別的平均評分
-        avg_rating = feedback_df.groupby('category')['rating'].mean().reset_index()
-        avg_rating = avg_rating.rename(columns={"category": "公廁類別", "rating": "平均評分"})
+        avg_rating = feedback_df.groupby('公廁類別')['評分'].mean().reset_index()
+        avg_rating = avg_rating.rename(columns={"公廁類別": "公廁類別", "評分": "平均評分"})
 
         # 繪製平均評分的長條圖
         fig3 = px.bar(
