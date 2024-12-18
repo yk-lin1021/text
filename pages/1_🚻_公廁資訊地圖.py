@@ -3,7 +3,24 @@ import leafmap.foliumap as leafmap
 import geopandas as gpd
 from folium.plugins import HeatMap
 import pandas as pd
-import os
+from github import Github
+import io
+
+# GitHub 配置
+REPO_NAME = "yk-lin1021/113-1gis"  # 替換為您的儲存庫名稱
+FEEDBACK_FILE_PATH = "feedback_data.csv"  # 儲存回饋資料的檔案路徑
+
+# 初始化 GitHub API
+g = Github(GITHUB_TOKEN)
+repo = g.get_repo(REPO_NAME)
+
+# 從 GitHub 載入回饋資料
+try:
+    file_content = repo.get_contents(FEEDBACK_FILE_PATH)
+    feedback_data = pd.read_csv(io.StringIO(file_content.decoded_content.decode('utf-8')))
+except Exception as e:
+    st.warning(f"無法讀取回饋資料：{e}")
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
 
 # 載入 GeoJSON 檔案
 data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
