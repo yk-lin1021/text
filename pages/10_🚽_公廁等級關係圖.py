@@ -41,7 +41,7 @@ try:
         # 計算每個公廁類別的平均評分
         avg_rating = feedback_df.groupby('公廁類別')['評分'].mean().reset_index()
         avg_rating = avg_rating.rename(columns={"公廁類別": "公廁類別", "評分": "平均評分"})
-
+        st.subheader("用戶回饋平均評分")
         # 繪製平均評分的長條圖
         fig3 = px.bar(
             avg_rating,
@@ -60,7 +60,7 @@ except Exception as e:
 
 # 繼續原本的等級分佈分析
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
-    st.subheader("公廁設施環境衛生檢查評分")
+    st.subheader("環保局-公廁設施環境衛生檢查評分")
     # 轉換為長格式
     level_columns = ['特優級', '優等級', '普通級', '改善級']
     melted_data = gdf[['公廁類別'] + level_columns].melt(id_vars='公廁類別', value_vars=level_columns, var_name='等級', value_name='數量')
