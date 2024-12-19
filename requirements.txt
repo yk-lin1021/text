@@ -5,4 +5,4 @@ owslib
 streamlit
 pydeck
 PyGithub
-geocoder
+geopy
