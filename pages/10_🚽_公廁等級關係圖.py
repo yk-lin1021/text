@@ -4,7 +4,7 @@ import geopandas as gpd
 import plotly.express as px
 from github import Github
 import os
-from io import StringIO  # 導入 StringIO
+from io import StringIO
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # 從環境變數讀取
 REPO_NAME = 'yk-lin1021/113-1gis'
@@ -16,22 +16,27 @@ def load_geojson(filepath):
     gdf = gpd.read_file(filepath)
     return gdf
 
-# 讀取 GitHub 上的回饋資料
+# 從 GitHub 加載回饋資料
 @st.cache_data
 def load_feedback_from_github(token, repo_name, file_path):
     g = Github(token)
     repo = g.get_repo(repo_name)
     file_content = repo.get_contents(file_path)
-    # 解碼 CSV 內容並轉為 DataFrame
-    feedback_data = pd.read_csv(StringIO(file_content.decoded_content.decode()))  # 使用 StringIO
+    feedback_data = pd.read_csv(StringIO(file_content.decoded_content.decode()))
     return feedback_data
 
 # 設定檔案路徑與初始化
-
 geojson_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 
 # 標題
 st.title("公廁分析：等級與用戶回饋")
+
+# 快取清除按鈕
+if st.button("清除快取並重新載入資料"):
+    st.cache_data.clear()  # 清除所有快取
+    st.success("快取已清除，請重新執行應用程式！")
+
+# 加載 GeoJSON 資料
 gdf = load_geojson(geojson_path)
 
 # 加載 GitHub 的回饋資料
@@ -56,7 +61,7 @@ try:
         )
         st.plotly_chart(fig3)
     else:
-        st.error("回饋資料缺少必要的欄位：'category' 或 'rating'")
+        st.error("回饋資料缺少必要的欄位：'公廁類別' 或 '評分'")
 except Exception as e:
     st.error(f"無法載入回饋資料：{str(e)}")
 
