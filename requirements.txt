@@ -6,3 +6,5 @@ streamlit
 pydeck
 PyGithub
 geopy
+geocoder
+folium
