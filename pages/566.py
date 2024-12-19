@@ -1,19 +1,29 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
-import geocoder  # 用來獲取用戶的 GPS 位置
+from geopy.geocoders import Nominatim
 
-# 取得用戶的 GPS 位置
-g = geocoder.ip('me')
-lat, lon = g.latlng
+# 創建地理編碼器
+geolocator = Nominatim(user_agent="geoapiExercises")
 
-# 在 Streamlit 上顯示地圖
-m = leafmap.Map(center=(lat, lon), zoom=12)
+# 在 Streamlit 上顯示標題
+st.title("Address to Coordinates")
 
-# 在地圖上標記用戶位置
-m.add_marker(location=(lat, lon), popup="Your Location")
+# 讓用戶輸入地址
+address = st.text_input("Enter an address:")
 
-# 顯示地圖
-st.title("Display User GPS Location")
-st.write(f"User's Latitude: {lat}, Longitude: {lon}")
-st.dataframe({"Latitude": [lat], "Longitude": [lon]})  # 顯示經緯度數據
-m.to_streamlit()
+if address:
+    # 使用 geopy 進行地址轉換
+    location = geolocator.geocode(address)
+    
+    if location:
+        lat, lon = location.latitude, location.longitude
+        
+        # 顯示轉換後的座標
+        st.write(f"Latitude: {lat}, Longitude: {lon}")
+        
+        # 創建地圖並顯示位置
+        m = leafmap.Map(center=(lat, lon), zoom=12)
+        m.add_marker(location=(lat, lon), popup=f"Location: {address}")
+        m.to_streamlit()
+    else:
+        st.write("Address not found. Please try another one.")
