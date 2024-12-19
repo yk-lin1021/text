@@ -116,7 +116,6 @@ for _, row in filtered_data.iterrows():
     marker_layer.add_child(
         leafmap.folium.Marker(
             location=(row['緯度'], row['經度']),
-            popup=popup_info,
             tooltip=popup_info,
             icon=leafmap.folium.Icon(color='blue')
         )
