@@ -31,10 +31,6 @@ geojson_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads
 # 標題
 st.title("公廁分析：等級與用戶回饋")
 
-# 快取清除按鈕
-if st.button("更新即時資料"):
-    st.cache_data.clear()  # 清除所有快取
-    st.success("已更新，請重新執行應用程式！")
 
 # 加載 GeoJSON 資料
 gdf = load_geojson(geojson_path)
@@ -49,6 +45,12 @@ try:
         avg_rating = feedback_df.groupby('公廁類別')['評分'].mean().reset_index()
         avg_rating = avg_rating.rename(columns={"公廁類別": "公廁類別", "評分": "平均評分"})
         st.subheader("用戶回饋平均評分")
+        # 快取清除按鈕
+        if st.button("更新即時資料"):
+            st.cache_data.clear()  # 清除所有快取
+            st.success("已更新，請重新執行應用程式！")
+
+        
         # 繪製平均評分的長條圖
         fig3 = px.bar(
             avg_rating,
