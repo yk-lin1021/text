@@ -112,11 +112,6 @@ for _, row in filtered_data.iterrows():
         f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
     )
 
-    if show_accessible:
-        popup_info += f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
-    if show_parent_child:
-        popup_info += f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
-
     # 將標註新增至標註圖層
     marker_layer.add_child(
         leafmap.folium.Marker(
