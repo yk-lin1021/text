@@ -1,6 +1,6 @@
+from geopy.geocoders import Nominatim
 import streamlit as st
 import leafmap.foliumap as leafmap
-import geocoder
 
 def main():
     st.title("地址轉換為地圖標記")
@@ -10,10 +10,11 @@ def main():
     
     if st.button("取得地圖"):
         if city:
-            # 取得經緯度
-            city_gps = geocoder.osm(city).latlng
+            geolocator = Nominatim(user_agent="myGeocoder")
+            location = geolocator.geocode(city)
             
-            if city_gps:
+            if location:
+                city_gps = [location.latitude, location.longitude]
                 st.write(f"地址: {city}")
                 st.write(f"經緯度座標: {city_gps}")
                 
