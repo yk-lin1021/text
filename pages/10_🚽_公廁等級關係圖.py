@@ -32,9 +32,9 @@ geojson_path = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads
 st.title("公廁分析：等級與用戶回饋")
 
 # 快取清除按鈕
-if st.button("清除快取並重新載入資料"):
+if st.button("更新即時資料"):
     st.cache_data.clear()  # 清除所有快取
-    st.success("快取已清除，請重新執行應用程式！")
+    st.success("已更新，請重新執行應用程式！")
 
 # 加載 GeoJSON 資料
 gdf = load_geojson(geojson_path)
