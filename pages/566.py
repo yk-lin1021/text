@@ -10,7 +10,7 @@ def main():
     
     if st.button("取得地圖"):
         if city:
-            geolocator = Nominatim(user_agent="myGeocoder")
+            geolocator = Nominatim(user_agent="taipei-toilet")
             location = geolocator.geocode(city)
             
             if location:
