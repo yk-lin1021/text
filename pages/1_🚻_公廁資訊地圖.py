@@ -107,7 +107,9 @@ for _, row in filtered_data.iterrows():
         f"<b>優等級:</b> {row['優等級']}<br>"
         f"<b>普通級:</b> {row['普通級']}<br>"
         f"<b>改善級:</b> {row['改善級']}<br>"
-        f"{feedback_message}<br>"  # 加入回饋訊息
+        f"{feedback_message}<br>"# 加入回饋訊息
+        f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
+        "<b>親子廁座數:</b> {row['親子廁座數']}<br>"
     )
 
     if show_accessible:
