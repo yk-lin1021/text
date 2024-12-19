@@ -5,3 +5,4 @@ owslib
 streamlit
 pydeck
 PyGithub
+streamlit-folium
