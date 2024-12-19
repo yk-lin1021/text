@@ -1,29 +1,32 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
-from geopy.geocoders import Nominatim
+import geocoder
 
-# 創建地理編碼器
-geolocator = Nominatim(user_agent="geoapiExercises")
-
-# 在 Streamlit 上顯示標題
-st.title("Address to Coordinates")
-
-# 讓用戶輸入地址
-address = st.text_input("Enter an address:")
-
-if address:
-    # 使用 geopy 進行地址轉換
-    location = geolocator.geocode(address)
+def main():
+    st.title("地址轉換為地圖標記")
     
-    if location:
-        lat, lon = location.latitude, location.longitude
-        
-        # 顯示轉換後的座標
-        st.write(f"Latitude: {lat}, Longitude: {lon}")
-        
-        # 創建地圖並顯示位置
-        m = leafmap.Map(center=(lat, lon), zoom=12)
-        m.add_marker(location=(lat, lon), popup=f"Location: {address}")
-        m.to_streamlit()
-    else:
-        st.write("Address not found. Please try another one.")
+    # 使用者輸入地址
+    city = st.text_input("請輸入地址:", "")
+    
+    if st.button("取得地圖"):
+        if city:
+            # 取得經緯度
+            city_gps = geocoder.osm(city).latlng
+            
+            if city_gps:
+                st.write(f"地址: {city}")
+                st.write(f"經緯度座標: {city_gps}")
+                
+                # 使用 leafmap 繪製地圖
+                m = leafmap.Map(center=city_gps, zoom=16)
+                m.add_marker(location=city_gps, popup=city)
+                
+                # 在 Streamlit 中顯示地圖
+                m.to_streamlit(height=500)
+            else:
+                st.error("無法取得地址的經緯度，請確認地址是否正確。")
+        else:
+            st.warning("請輸入地址。")
+
+if __name__ == "__main__":
+    main()
