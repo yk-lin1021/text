@@ -145,9 +145,6 @@ for _, row in filtered_data.iterrows():
         f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
         f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
     )
-
-    
-    popup_info = f"<b>公廁名稱:</b> {row['公廁名稱']}<br>..."
     marker_layer.add_child(
         leafmap.folium.Marker(
             location=(row['緯度'], row['經度']),
