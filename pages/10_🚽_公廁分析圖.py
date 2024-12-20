@@ -35,6 +35,7 @@ st.title("公廁分析：等級與用戶回饋")
 # 加載 GeoJSON 資料
 gdf = load_geojson(geojson_path)
 
+###公廁類別與平均評分
 # 加載 GitHub 的回饋資料
 try:
     feedback_df = load_feedback_from_github(GITHUB_TOKEN, REPO_NAME, FILE_PATH)
@@ -67,7 +68,8 @@ try:
 except Exception as e:
     st.error(f"無法載入回饋資料：{str(e)}")
 
-# 繼續原本的等級分佈分析
+###公廁等級比例與公廁類別
+# 等級分佈分析
 if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' in gdf.columns and '普通級' in gdf.columns and '改善級' in gdf.columns:
     
     st.subheader("環保局-公廁設施環境衛生檢查評分")
@@ -111,7 +113,7 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
 
     # 顯示圓餅圖
     st.plotly_chart(fig2)
-
+###公廁類別與等級分佈
     # 繪製長條圖（顯示所有類別的級數數量）
     fig1 = px.bar(
         melted_data,
