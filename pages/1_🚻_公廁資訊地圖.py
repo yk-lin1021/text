@@ -136,7 +136,7 @@ for _, row in filtered_data.iterrows():
         leafmap.folium.Marker(
             location=(row['緯度'], row['經度']),
             tooltip=popup_info,
-            icon=leafmap.folium.Icon(color='blue')
+            icon = folium.Icon(icon="🚻", color="blue")
         )
     )
 
