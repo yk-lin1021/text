@@ -9,7 +9,7 @@ import io
 import requests
 
 # 從 Streamlit Secrets 中讀取 API 金鑰
-api_key = st.secrets["general"]["api_key"]
+api_key = os.getenv("API_KEY")
 
 # GitHub 配置
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
