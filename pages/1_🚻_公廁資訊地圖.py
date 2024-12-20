@@ -57,7 +57,7 @@ show_accessible = st.checkbox("無障礙廁座", value=True)
 show_parent_child = st.checkbox("親子廁座", value=True)
 
 # 用戶輸入地址
-user_address = st.text_input("請輸入地址以顯示在地圖上")
+user_address = st.text_input("輸入你想查詢地址(地標)以顯示在地圖上")
 
 # 地理編碼：將地址轉換為經緯度
 def geocode_address(address):
