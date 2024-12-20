@@ -131,6 +131,22 @@ for _, row in filtered_data.iterrows():
     if not feedback.empty:
         average_rating = feedback['評分'].mean()
         feedback_message = f"<b>評分:</b> {average_rating:.2f} (來自 {len(feedback)} 個回饋)"
+    
+    popup_info = (
+        f"<b>公廁名稱:</b> {row['公廁名稱']}<br>"
+        f"<b>地址:</b> {row['公廁地址']}<br>"
+        f"<b>管理單位:</b> {row['管理單位']}<br>"
+        f"<b>座數:</b> {row['座數']}<br>"
+        f"<b>特優級:</b> {row['特優級']}<br>"
+        f"<b>優等級:</b> {row['優等級']}<br>"
+        f"<b>普通級:</b> {row['普通級']}<br>"
+        f"<b>改善級:</b> {row['改善級']}<br>"
+        f"{feedback_message}<br>"# 加入回饋訊息
+        f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
+        f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
+    )
+
+    
     popup_info = f"<b>公廁名稱:</b> {row['公廁名稱']}<br>..."
     marker_layer.add_child(
         leafmap.folium.Marker(
