@@ -3,7 +3,7 @@ import requests
 import os
 
 # 從環境變數中讀取 API 密鑰
-api_key = os.getenv("API_KEY")  # 確保環境變數中有設置 API_KEY
+api_key = os.getenv("api_key")  # 確保環境變數中有設置 API_KEY
 
 # 如果未設置環境變數，顯示錯誤消息
 if not api_key:
