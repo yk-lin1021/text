@@ -18,6 +18,25 @@ repo = g.get_repo(REPO_NAME)
 # 檔案路徑，用於儲存與讀取用戶回饋
 feedback_file = "feedback_data.csv"
 
+# 從 GitHub 下載最新的 CSV 文件
+def sync_with_github():
+    try:
+        file_content = repo.get_contents(FILE_PATH)
+        with open(feedback_file, "w") as f:
+            f.write(file_content.decoded_content.decode())
+    except Exception as e:
+        st.warning(f"無法同步 GitHub 上的 CSV 文件: {e}")
+
+# 啟動時同步本地文件與 GitHub 文件
+if not os.path.exists(feedback_file):
+    sync_with_github()
+
+# 讀取或初始化回饋資料
+if os.path.exists(feedback_file):
+    feedback_data = pd.read_csv(feedback_file)
+else:
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+
 # 讀取 GeoJSON 檔案
 file_url = "https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson"
 toilets_gdf = gpd.read_file(file_url)
@@ -26,12 +45,6 @@ toilets_gdf = gpd.read_file(file_url)
 if "行政區" not in toilets_gdf.columns or "公廁名稱" not in toilets_gdf.columns or "公廁類別" not in toilets_gdf.columns:
     st.error("GeoJSON 檔案缺少必要的 '行政區', '公廁名稱' 或 '公廁類別' 欄位，請確認檔案格式。")
 else:
-    # 讀取或初始化回饋資料
-    if os.path.exists(feedback_file):
-        feedback_data = pd.read_csv(feedback_file)
-    else:
-        feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
-
     # 提取行政區與公廁類別列表
     district_list = sorted(toilets_gdf["行政區"].unique())
     category_list = sorted(toilets_gdf["公廁類別"].unique())
@@ -99,5 +112,3 @@ else:
     # 顯示所有用戶回饋
     st.subheader("所有用戶回饋")
     st.dataframe(feedback_data)
-
-
