@@ -57,46 +57,47 @@ else:
     rating = st.slider("請給予評分 (1-5，5為體驗較好)", 1, 5, 3)
 
     if st.button("提交回饋"):
-    # 取得當前時間並轉換為 GMT+8
-    taipei_tz = pytz.timezone("Asia/Taipei")
-    current_time = datetime.now(taipei_tz).strftime("%Y-%m-%d %H:%M:%S")
+        # 取得當前時間並轉換為 GMT+8
+        taipei_tz = pytz.timezone("Asia/Taipei")
+        current_time = datetime.now(taipei_tz).strftime("%Y-%m-%d %H:%M:%S")
 
-    # 新的回饋資料
-    new_feedback = pd.DataFrame({
-        "行政區": [selected_district],
-        "公廁類別": [selected_category],
-        "公廁名稱": [toilet_choice],
-        "評分": [rating],
-        "回饋時間": [current_time]
-    })
+        # 新的回饋資料
+        new_feedback = pd.DataFrame({
+            "行政區": [selected_district],
+            "公廁類別": [selected_category],
+            "公廁名稱": [toilet_choice],
+            "評分": [rating],
+            "回饋時間": [current_time]
+        })
 
-    # 使用追加模式寫入 CSV 檔案
-    new_feedback.to_csv(feedback_file, mode='a', header=not os.path.exists(feedback_file), index=False)
+        # 使用追加模式寫入 CSV 檔案
+        new_feedback.to_csv(feedback_file, mode='a', header=not os.path.exists(feedback_file), index=False)
 
-    # 重新讀取檔案，更新資料
-    feedback_data = pd.read_csv(feedback_file)
+        # 重新讀取檔案，更新資料
+        feedback_data = pd.read_csv(feedback_file)
 
-    st.success("回饋已提交，謝謝您的參與！")
+        st.success("回饋已提交，謝謝您的參與！")
 
-    # 更新至 GitHub
-    try:
-        # 轉換為 CSV 格式
-        updated_csv = feedback_data.to_csv(index=False)
+        # 更新至 GitHub
+        try:
+            # 轉換為 CSV 格式
+            updated_csv = feedback_data.to_csv(index=False)
 
-        # 取得原文件 SHA 值
-        file = repo.get_contents(FILE_PATH)
-        commit_message = "更新回饋資料"
-        repo.update_file(
-            path=FILE_PATH,
-            message=commit_message,
-            content=updated_csv,
-            sha=file.sha  # 必須提供文件的 SHA 值
-        )
-        st.success("回饋資料已成功同步到 GitHub！")
-    except Exception as e:
-        st.error(f"無法更新 GitHub 上的 CSV 文件: {e}")
+            # 取得原文件 SHA 值
+            file = repo.get_contents(FILE_PATH)
+            commit_message = "更新回饋資料"
+            repo.update_file(
+                path=FILE_PATH,
+                message=commit_message,
+                content=updated_csv,
+                sha=file.sha  # 必須提供文件的 SHA 值
+            )
+            st.success("回饋資料已成功同步到 GitHub！")
+        except Exception as e:
+            st.error(f"無法更新 GitHub 上的 CSV 文件: {e}")
 
-# 顯示所有用戶回饋
-st.subheader("所有用戶回饋")
-st.dataframe(feedback_data)
+    # 顯示所有用戶回饋
+    st.subheader("所有用戶回饋")
+    st.dataframe(feedback_data)
+
 
