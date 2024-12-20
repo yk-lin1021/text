@@ -115,7 +115,7 @@ if not filtered_data.empty:
 else:
     center_lat, center_lon = 25.033, 121.565  # 預設地圖中心（台北市）
 
-# 初始化地圖，根據篩選後資料的平均經緯度設置中心
+# 初始化地圖
 m = leafmap.Map(center=(center_lat, center_lon), zoom=12)
 
 # 如果有用戶地址，添加標註
@@ -124,35 +124,14 @@ if user_address and lat and lon:
 
 # 建立公廁標註圖層
 marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
-
-# 將篩選後的資料新增至標註圖層
 for _, row in filtered_data.iterrows():
     toilet_name = row['公廁名稱']
     feedback = feedback_data[feedback_data['公廁名稱'] == toilet_name]
-
-    # 如果沒有回饋資料，預設回饋訊息
     feedback_message = "<b>評分:</b> 尚無回饋"
-
-    # 如果有回饋資料，計算並顯示平均評分
     if not feedback.empty:
-        average_rating = feedback['評分'].mean()  # 計算平均評分
+        average_rating = feedback['評分'].mean()
         feedback_message = f"<b>評分:</b> {average_rating:.2f} (來自 {len(feedback)} 個回饋)"
-
-    popup_info = (
-        f"<b>公廁名稱:</b> {row['公廁名稱']}<br>"
-        f"<b>地址:</b> {row['公廁地址']}<br>"
-        f"<b>管理單位:</b> {row['管理單位']}<br>"
-        f"<b>座數:</b> {row['座數']}<br>"
-        f"<b>特優級:</b> {row['特優級']}<br>"
-        f"<b>優等級:</b> {row['優等級']}<br>"
-        f"<b>普通級:</b> {row['普通級']}<br>"
-        f"<b>改善級:</b> {row['改善級']}<br>"
-        f"{feedback_message}<br>"  # 加入回饋訊息
-        f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
-        f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
-    )
-
-    # 將標註新增至標註圖層
+    popup_info = f"<b>公廁名稱:</b> {row['公廁名稱']}<br>..."
     marker_layer.add_child(
         leafmap.folium.Marker(
             location=(row['緯度'], row['經度']),
@@ -164,11 +143,23 @@ for _, row in filtered_data.iterrows():
 # 將標註圖層新增至地圖
 m.add_child(marker_layer)
 
+# 建立熱區地圖圖層
+heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
+heatmap_data = [
+    [row['緯度'], row['經度'], row['座數']]  # 使用座數作為權重
+    for _, row in filtered_data.iterrows()
+]
+HeatMap(heatmap_data, min_opacity=0.2, max_val=100).add_to(heatmap_layer)
+
+# 將圖層新增至地圖
+m.add_child(heatmap_layer)
+
 # 新增圖層控制
 leafmap.folium.LayerControl().add_to(m)
 
 # 顯示地圖
 m.to_streamlit(height=700)
+
 
 # 在底部顯示篩選後的公廁資訊
 st.subheader("選擇的公廁資訊")
