@@ -120,7 +120,7 @@ m = leafmap.Map(center=(center_lat, center_lon), zoom=12)
 
 # 如果有用戶地址，添加標註
 if user_address and lat and lon:
-    m.add_marker(location=(lat, lon), popup=f"<b>地址:</b> {user_address}", icon=leafmap.folium.Icon(color='green'))
+    m.add_marker(location=(lat, lon), popup=f"<b>地址:</b> {user_address}", icon=leafmap.folium.Icon(color='red'))
 
 # 建立公廁標註圖層
 marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
@@ -136,7 +136,7 @@ for _, row in filtered_data.iterrows():
         leafmap.folium.Marker(
             location=(row['緯度'], row['經度']),
             tooltip=popup_info,
-            icon=folium.DivIcon(html='<div style="font-size: 24px;">🚻</div>') 
+            icon=leafmap.folium.Icon(color='blue') 
         )
     )
 
