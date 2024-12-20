@@ -113,6 +113,7 @@ if '公廁類別' in gdf.columns and '特優級' in gdf.columns and '優等級' 
 
     # 顯示圓餅圖
     st.plotly_chart(fig2)
+    
 ###公廁類別與等級分佈
     # 繪製長條圖（顯示所有類別的級數數量）
     fig1 = px.bar(
