@@ -6,6 +6,81 @@ from folium.plugins import HeatMap
 import pandas as pd
 from github import Github
 import io
+import requests
+
+# 從 Streamlit Secrets 中讀取 API 金鑰
+api_key = os.getenv("API_KEY")
+
+# GitHub 配置
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+REPO_NAME = "yk-lin1021/113-1gis"  # 替換為您的儲存庫名稱
+FEEDBACK_FILE_PATH = "feedback_data.csv"  # 儲存回饋資料的檔案路徑
+
+# 初始化 GitHub API
+g = Github(GITHUB_TOKEN)
+repo = g.get_repo(REPO_NAME)
+
+# 從 GitHub 載入回饋資料
+try:
+    file_content = repo.get_contents(FEEDBACK_FILE_PATH)
+    feedback_data = pd.read_csv(io.StringIO(file_content.decoded_content.decode('utf-8')))
+except Exception as e:
+    st.warning(f"無法讀取回饋資料：{e}")
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+
+# 載入 GeoJSON 檔案
+data = gpd.read_file("https://raw.githubusercontent.com/yk-lin1021/113-1gis/refs/heads/main/%E5%BB%81%E6%89%80%E4%BD%8D%E7%BD%AE.geojson")
+
+# 載入回饋資料
+feedback_file = "feedback_data.csv"
+if os.path.exists(feedback_file):
+    feedback_data = pd.read_csv(feedback_file)
+else:
+    feedback_data = pd.DataFrame(columns=["行政區", "公廁類別", "公廁名稱", "評分", "回饋時間"])
+
+# 建立 Streamlit 應用程式
+st.title("公廁互動地圖")
+
+# 在地圖上方新增篩選條件
+st.subheader("篩選條件")
+
+# 提供多選選項篩選行政區
+districts = ['全選'] + list(data['行政區'].unique())
+selected_districts = st.multiselect("選擇行政區", options=districts, default=['全選'])
+
+# 提供多選選項篩選公廁類別
+toilet_types = ['全選'] + list(data['公廁類別'].unique())
+selected_types = st.multiselect("選擇公廁類別", options=toilet_types, default=['全選'])
+
+# 勾選選項以顯示附加資訊
+show_accessible = st.checkbox("無障礙廁座", value=True)
+show_parent_child = st.checkbox("親子廁座", value=True)
+
+# 用戶輸入地址
+user_address = st.text_input("請輸入地址以顯示在地圖上")
+
+# 地理編碼：將地址轉換為經緯度
+def geocode_address(address):
+    url = f'https://api.opencagedata.com/geocode/v1/json?q={address}&key={api_key}&language=zh-TW'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if data['results']:
+            lat = data['results'][0]['geometry']['lat']
+            lon = data['results'][0]['geometry']['lng']
+            return lat, lon
+    return None, None
+
+# 如果用戶輸入地址，將其顯示在地圖上
+if user_address:
+    lat, lon = geocode_adimport os
+import streamlit as st
+import leafmap.foliumap as leafmap
+import geopandas as gpd
+from folium.plugins import HeatMap
+import pandas as pd
+from github import Github
+import io
 
 # GitHub 配置
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
