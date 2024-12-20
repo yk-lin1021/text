@@ -61,7 +61,6 @@ user_address = st.text_input("請輸入地址以顯示在地圖上")
 
 # 地理編碼：將地址轉換為經緯度
 def geocode_address(address):
-    # OpenCage API 連結
     url = f'https://api.opencagedata.com/geocode/v1/json?q={address}&key={api_key}&language=zh-TW'
     response = requests.get(url)
     if response.status_code == 200:
@@ -80,7 +79,7 @@ if user_address:
     else:
         st.warning(f"無法找到地址 '{user_address}' 的位置")
 else:
-    lat, lon = 25.033, 121.565  # 預設地圖中心（台北市）
+    lat, lon = None, None  # 預設為 None，讓地圖自動根據資料範圍設定
 
 # 根據選擇的公廁類別篩選資料
 if '全選' not in selected_types:
@@ -109,8 +108,8 @@ def calculate_average_rating(toilet_name):
 # 將平均評分新增至篩選後的資料
 filtered_data['平均評分'] = filtered_data['公廁名稱'].apply(calculate_average_rating)
 
-# 初始化地圖
-m = leafmap.Map(center=(lat, lon), zoom=12)
+# 初始化地圖，這樣會根據篩選後的資料自動調整地圖中心
+m = leafmap.Map(zoom=12)
 
 # 如果有用戶地址，添加標註
 if user_address and lat and lon:
@@ -141,7 +140,7 @@ for _, row in filtered_data.iterrows():
         f"<b>優等級:</b> {row['優等級']}<br>"
         f"<b>普通級:</b> {row['普通級']}<br>"
         f"<b>改善級:</b> {row['改善級']}<br>"
-        f"{feedback_message}<br>"# 加入回饋訊息
+        f"{feedback_message}<br>"  # 加入回饋訊息
         f"<b>無障礙廁座數:</b> {row['無障礙廁座數']}<br>"
         f"<b>親子廁座數:</b> {row['親子廁座數']}<br>"
     )
@@ -158,10 +157,10 @@ for _, row in filtered_data.iterrows():
 # 將標註圖層新增至地圖
 m.add_child(marker_layer)
 
-# 新增圖層控制以切換圖層
+# 新增圖層控制
 leafmap.folium.LayerControl().add_to(m)
 
-# 在 Streamlit 中顯示地圖
+# 顯示地圖
 m.to_streamlit(height=700)
 
 # 在底部顯示篩選後的公廁資訊
