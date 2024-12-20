@@ -108,8 +108,15 @@ def calculate_average_rating(toilet_name):
 # 將平均評分新增至篩選後的資料
 filtered_data['平均評分'] = filtered_data['公廁名稱'].apply(calculate_average_rating)
 
-# 初始化地圖，這樣會根據篩選後的資料自動調整地圖中心
-m = leafmap.Map(zoom=12)
+# 計算資料中的經緯度中心
+if not filtered_data.empty:
+    center_lat = filtered_data['緯度'].mean()
+    center_lon = filtered_data['經度'].mean()
+else:
+    center_lat, center_lon = 25.033, 121.565  # 預設地圖中心（台北市）
+
+# 初始化地圖，根據篩選後資料的平均經緯度設置中心
+m = leafmap.Map(center=(center_lat, center_lon), zoom=12)
 
 # 如果有用戶地址，添加標註
 if user_address and lat and lon:
