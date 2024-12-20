@@ -71,9 +71,8 @@ else:
             "回饋時間": [current_time]
         })
 
-        # 更新本地回饋資料
-        feedback_data = pd.concat([feedback_data, new_feedback], ignore_index=True)
-        feedback_data.to_csv(feedback_file, index=False)
+        # 使用追加模式寫入 CSV 檔案
+        new_feedback.to_csv(feedback_file, mode='a', header=not os.path.exists(feedback_file), index=False)
         st.success("回饋已提交，謝謝您的參與！")
 
         # 更新至 GitHub
