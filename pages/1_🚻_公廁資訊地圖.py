@@ -6,9 +6,13 @@ from folium.plugins import HeatMap
 import pandas as pd
 from github import Github
 import io
+import requests
+
+# 從 Streamlit Secrets 中讀取 API 金鑰
+api_key = st.secrets["general"]["api_key"]
 
 # GitHub 配置
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 REPO_NAME = "yk-lin1021/113-1gis"  # 替換為您的儲存庫名稱
 FEEDBACK_FILE_PATH = "feedback_data.csv"  # 儲存回饋資料的檔案路徑
 
@@ -52,6 +56,32 @@ selected_types = st.multiselect("選擇公廁類別", options=toilet_types, defa
 show_accessible = st.checkbox("無障礙廁座", value=True)
 show_parent_child = st.checkbox("親子廁座", value=True)
 
+# 用戶輸入地址
+user_address = st.text_input("請輸入地址以顯示在地圖上")
+
+# 地理編碼：將地址轉換為經緯度
+def geocode_address(address):
+    # OpenCage API 連結
+    url = f'https://api.opencagedata.com/geocode/v1/json?q={address}&key={api_key}&language=zh-TW'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if data['results']:
+            lat = data['results'][0]['geometry']['lat']
+            lon = data['results'][0]['geometry']['lng']
+            return lat, lon
+    return None, None
+
+# 如果用戶輸入地址，將其顯示在地圖上
+if user_address:
+    lat, lon = geocode_address(user_address)
+    if lat and lon:
+        st.success(f"地址 '{user_address}' 的位置已顯示在地圖上")
+    else:
+        st.warning(f"無法找到地址 '{user_address}' 的位置")
+else:
+    lat, lon = 25.033, 121.565  # 預設地圖中心（台北市）
+
 # 根據選擇的公廁類別篩選資料
 if '全選' not in selected_types:
     filtered_data = data[data['公廁類別'].isin(selected_types)]
@@ -80,7 +110,11 @@ def calculate_average_rating(toilet_name):
 filtered_data['平均評分'] = filtered_data['公廁名稱'].apply(calculate_average_rating)
 
 # 初始化地圖
-m = leafmap.Map(center=(25.033, 121.565), zoom=12)
+m = leafmap.Map(center=(lat, lon), zoom=12)
+
+# 如果有用戶地址，添加標註
+if user_address and lat and lon:
+    m.add_marker(location=(lat, lon), popup=f"<b>地址:</b> {user_address}", icon=leafmap.folium.Icon(color='green'))
 
 # 建立公廁標註圖層
 marker_layer = leafmap.folium.FeatureGroup(name="公廁標註")
@@ -123,22 +157,6 @@ for _, row in filtered_data.iterrows():
 
 # 將標註圖層新增至地圖
 m.add_child(marker_layer)
-
-# 建立熱區地圖圖層
-heatmap_layer = leafmap.folium.FeatureGroup(name="熱區地圖")
-
-# 為熱區地圖準備資料（使用緯度和經度計算密度）
-# 使用座數作為熱區權重
-heatmap_data = [
-    [row['緯度'], row['經度'], row['座數']]  # 使用座數作為權重
-    for _, row in filtered_data.iterrows()
-]
-
-# 將熱區地圖新增至熱區圖層
-HeatMap(heatmap_data, min_opacity=0.2, max_val=100).add_to(heatmap_layer)
-
-# 將圖層新增至地圖
-m.add_child(heatmap_layer)
 
 # 新增圖層控制以切換圖層
 leafmap.folium.LayerControl().add_to(m)
